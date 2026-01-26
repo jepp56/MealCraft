@@ -1,0 +1,29 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "MealCraftUI",
+            "request": "launch",
+            "mainClass": "MealCraftUI",
+            "projectName": "mealcraft_159027a6"
+        },
+        {
+            "type": "java",
+            "name": "App",
+            "request": "launch",
+            "vmArgs": "--module-path /Users/jessieluo/mealcraftFXtester/mealcraft/javafx-sdk-25.0.2/lib --add-modules javafx.controls",
+            "mainClass": "App",
+            "projectName": "mealcraft_159027a6"
+        },
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        }
+    ]
+}
