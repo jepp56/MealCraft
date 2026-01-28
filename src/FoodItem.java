@@ -1,4 +1,7 @@
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FoodItem{
     // Instance Variables
@@ -39,6 +42,11 @@ public class FoodItem{
     }
     public LocalDate getExpirationDate(){
         return expirationDate;
+    }
+    public long getDaysUntilExpiration(){
+        LocalDate today = LocalDate.now();
+        long daysBetween = ChronoUnit.DAYS.between(today, expirationDate);
+        return daysBetween;
     }
     public String getImgFilePath(){
         return imgFilePath;

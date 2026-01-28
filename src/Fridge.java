@@ -1,3 +1,4 @@
+
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -150,17 +151,19 @@ public class Fridge {
      * @param days the number of days
      * @return a list of FoodItems that are expiring within the given number of days
      */
-    public List<FoodItem> getExpiringSoon(int days){
-        List<FoodItem> expiringSoon = new ArrayList<>();
+    public List<FoodItem> getExpiringSoon(int days) {
+        List<FoodItem> result = new ArrayList<>();
+
         LocalDate today = LocalDate.now();
-        
-        for(LocalDate date : expirationIndex.keySet()){
-            long daysBetween = ChronoUnit.DAYS.between(date, today);
-            if(daysBetween>0 && daysBetween<=days){
-                expiringSoon.addAll(expirationIndex.get(date));
+
+        for (FoodItem item : inventoryByName.values()) {
+            long d = item.getDaysUntilExpiration();
+
+            if (d >= 0 && d <= days) {  // include today + next N days
+                result.add(item);
             }
         }
-        return expiringSoon;
+        return result;
     }
 
     /**

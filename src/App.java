@@ -1,3 +1,4 @@
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -8,9 +9,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-
 import java.io.InputStream;
 import java.time.LocalDate;
+
 
 public class App extends Application {
 
@@ -95,15 +96,25 @@ public class App extends Application {
         Button addItemBtn = new Button("add item");
         addItemBtn.setMaxWidth(Double.MAX_VALUE);
 
-        VBox left = new VBox(10, headerRow, inventoryGrid, addItemBtn);
-        left.setPadding(new Insets(10));
+        // Inner bordered box (like itemDetailsBox / infoBox)
+        VBox inventoryBox = new VBox(10, headerRow, inventoryGrid, addItemBtn);
+        inventoryBox.setPadding(new Insets(10));
+        inventoryBox.setPrefSize(PANEL_WIDTH, PANEL_HEIGHT);
+        inventoryBox.setMinSize(PANEL_WIDTH, PANEL_HEIGHT);
+        inventoryBox.setMaxSize(PANEL_WIDTH, PANEL_HEIGHT);
+        inventoryBox.setStyle(
+            "-fx-border-color: black; -fx-border-width: 2px; -fx-background-color: #e6e6e6;"
+        );
+
+        // Outer container with header above (for alignment)
+        VBox left = new VBox(10, header, inventoryBox);
         left.setPrefSize(PANEL_WIDTH, PANEL_HEIGHT);
         left.setMinSize(PANEL_WIDTH, PANEL_HEIGHT);
         left.setMaxSize(PANEL_WIDTH, PANEL_HEIGHT);
-        left.setStyle("-fx-border-color: black; -fx-border-width: 2px; -fx-background-color: #e6e6e6;");
 
-        return left;
+         return left;
     }
+
 
     private VBox buildItemDetailsPane() {
         Label header = new Label("ITEM DETAILS");
@@ -164,10 +175,18 @@ public class App extends Application {
     private Button buildInventorySlot(FoodItem item) {
         ImageView icon = new ImageView();
 
+        System.out.println("Trying: /" + item.getImgFilePath());
+        System.out.println("Found? " + getClass().getResource("/" + item.getImgFilePath()));
+
+
         if (item.getImgFilePath() != null) {
             try {
-                Image img = new Image("file:" + item.getImgFilePath());
-                icon.setImage(img);
+                InputStream is = getClass().getResourceAsStream("/" + item.getImgFilePath());
+                if (is != null) {
+                    Image img = new Image(is);
+                    icon.setImage(img);
+                }
+
                 icon.setFitWidth(40);
                 icon.setFitHeight(40);
             } catch (Exception ignored) {}
@@ -192,7 +211,11 @@ public class App extends Application {
         ImageView imgView = new ImageView();
         if (item.getImgFilePath() != null) {
             try {
-                imgView.setImage(new Image("file:" + item.getImgFilePath()));
+                InputStream is = getClass().getResourceAsStream("/" + item.getImgFilePath());
+                if (is != null) {
+                    imgView.setImage(new Image(is));
+                }
+
                 imgView.setFitWidth(80);
                 imgView.setFitHeight(80);
             } catch (Exception ignored) {}
@@ -213,34 +236,39 @@ public class App extends Application {
 
         Label useSoonLabel = new Label("USE SOON:");
         useSoonLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+        infoBox.getChildren().add(useSoonLabel);
 
         for (FoodItem item : fridge.getExpiringSoon(3)) {
-            long days = java.time.temporal.ChronoUnit.DAYS.between(
-                    LocalDate.now(), item.getExpirationDate());
-            Label l = new Label("• " + item.getName() + " (expires " + days + " day)");
+            long days = item.getDaysUntilExpiration();
+            String dayText = (days == 1) ? "day" : "days";
+            Label l = new Label(
+                "• " + item.getName() +
+                " (expiring in " + days + " " + dayText + ")"
+            );
             infoBox.getChildren().add(l);
         }
 
         Separator sep = new Separator();
+        infoBox.getChildren().add(sep);
 
         Label lowStockLabel = new Label("LOW STOCK:");
         lowStockLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+        infoBox.getChildren().add(lowStockLabel);
 
         for (FoodItem item : fridge.getInventoryByName().values()) {
             if (item.getQuantity() <= 2) {
-                Label l = new Label("• " + item.getName() + " (x" + (int) item.getQuantity() + ")");
+                Label l = new Label(
+                    "• " + item.getName() +
+                    " (x" + (int) item.getQuantity() + ")"
+                );
                 infoBox.getChildren().add(l);
             }
         }
-
-        infoBox.getChildren().add(0, useSoonLabel);
-        infoBox.getChildren().add(sep);
-        infoBox.getChildren().add(lowStockLabel);
     }
 
     private void seedTestData() {
         fridge.addFood(new FoodItem("Watermelon", 1, "piece", Category.FRUITS_VEGETABLES,
-                LocalDate.now().plusDays(5), "fooditem-images/fooditem-images/melon.png"));
+                LocalDate.now().plusDays(5), "fooditem-images/melon.png"));
 
         fridge.addFood(new FoodItem("Milk", 1, "carton", Category.DAIRY_EGGS,
                 LocalDate.now().plusDays(1), "fooditem-images/milk.png"));
